@@ -18,25 +18,12 @@ package org.recompile.mobile;
 
 import javax.microedition.lcdui.Font;
 
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
+public class PlatformFont {
+    public PlatformFont(Font font) {
+        initialize(font);
+    }
 
-public class PlatformFont
-{
-	private Graphics2D gc;
+    private void initialize(Font font) { }
 
-	public java.awt.Font awtFont;
-
-	public PlatformFont(Font font)
-	{
-		// TODO: use info from mobilefont to construct font
-		awtFont = new java.awt.Font("SansSerif", java.awt.Font.PLAIN, font.getPointSize());
-		gc = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB).createGraphics();
-		gc.setFont(awtFont);
-	}
-
-	public int stringWidth(String str)
-	{
-		return gc.getFontMetrics().stringWidth(str);
-	}
+    public int stringWidth(String str) { return 0; }
 }

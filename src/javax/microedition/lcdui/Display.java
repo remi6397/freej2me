@@ -16,17 +16,14 @@
 */
 package javax.microedition.lcdui;
 
-import javax.microedition.lcdui.Alert;
-import javax.microedition.lcdui.Displayable;
 import javax.microedition.midlet.MIDlet;
-
-import javax.microedition.lcdui.Image;
 
 import java.util.Vector;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import org.recompile.mobile.Mobile;
+import pl.nelz.mini.cocoatouch.Telephony;
 
 public class Display
 {
@@ -162,8 +159,7 @@ public class Display
 
 	public boolean vibrate(int duration)
 	{
-		//System.out.println("Vibrate");
-		return true;
+		return Telephony.vibrate(duration);
 	}
 
 }

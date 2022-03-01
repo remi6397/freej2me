@@ -16,288 +16,181 @@
 */
 package org.recompile.mobile;
 
-import java.net.URL;
-import java.util.Arrays;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ByteArrayInputStream;
-
 import javax.microedition.lcdui.Image;
-import javax.microedition.lcdui.Graphics;
-import javax.microedition.lcdui.game.Sprite;
-import javax.microedition.lcdui.game.GameCanvas;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 
-import javax.imageio.ImageIO;
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
-import java.awt.geom.AffineTransform;
+public class PlatformImage extends Image {
+    private long canvas;
+    protected PlatformGraphics gc;
 
-public class PlatformImage extends javax.microedition.lcdui.Image
-{
-	protected BufferedImage canvas;
-	protected PlatformGraphics gc;
+    public boolean isNull = false;
 
-	public boolean isNull = false;
+    public PlatformGraphics getGraphics() {
+        return gc;
+    }
 
-	public BufferedImage getCanvas()
-	{
-		return canvas;
-	}
+    public long getCanvas() {
+        return canvas;
+    }
 
-	public PlatformGraphics getGraphics()
-	{
-		return gc;
-	}
+    protected void createGraphics() {
+        gc = new PlatformGraphics(this);
+        gc.setColor(0);
+    }
 
-	protected void createGraphics()
-	{
-		gc = new PlatformGraphics(this);
-		gc.setColor(0x000000);
-	}
+    protected static long createCanvas(int width, int height) { return 0; }
 
-	public PlatformImage(int Width, int Height)
-	{
-		// Create blank Image
-		width = Width;
-		height = Height;
+    protected static long createCanvasFromStream(InputStream stream) { return 0; }
 
-		canvas = new BufferedImage(Width, Height, BufferedImage.TYPE_INT_ARGB);
-		createGraphics();
+    protected static long getSubimage(long image, int x, int y, int width, int height) { return 0; }
 
-		gc.setColor(0xFFFFFF);
-		gc.fillRect(0, 0, width, height);
-		gc.setColor(0x000000);
+    protected static float getCanvasWidth(long canvas) { return 0; }
 
-		platformImage = this;
-	}
+    protected static float getCanvasHeight(long canvas) { return 0; }
 
-	public PlatformImage(String name)
-	{
-		// Create Image from resource name
-		// System.out.println("Image From Resource Name");
-		BufferedImage temp;
+    public PlatformImage(int Width, int Height) {
+        // Create blank Image
+        width = Width;
+        height = Height;
 
-		InputStream stream = Mobile.getPlatform().loader.getMIDletResourceAsStream(name);
+        canvas = createCanvas(Width, Height);
+        createGraphics();
 
-		if(stream==null)
-		{
-			System.out.println("Couldn't Load Image Stream (can't find "+name+")");
-			isNull = true;
-		}
-		else
-		{
-			try
-			{
-				temp = ImageIO.read(stream);
-				width = (int)temp.getWidth();
-				height = (int)temp.getHeight();
+        gc.setColor(0xFFFFFF);
+        gc.fillRect(0, 0, width, height);
+        gc.setColor(0x000000);
 
-				canvas = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-				createGraphics();
+        platformImage = this;
+    }
 
-				gc.drawImage2(temp, 0, 0);
-			}
-			catch (Exception e)
-			{
-				System.out.println("Couldn't Load Image Stream " + name);
-				e.printStackTrace();
-				isNull = true;
-			}
-		}
-		platformImage = this;
-	}
+    public PlatformImage(String name) {
+        InputStream stream = Mobile.getPlatform().loader.getMIDletResourceAsStream(name);
+        long temp;
 
-	public PlatformImage(InputStream stream)
-	{
-		// Create Image from InputStream
-		// System.out.println("Image From Stream");
-		BufferedImage temp;
-		try
-		{
-			temp = ImageIO.read(stream);
-			width = (int)temp.getWidth();
-			height = (int)temp.getHeight();
+        if (stream == null) {
+            System.out.println("Couldn't Load Image Stream (can't find " + name + ")");
+            isNull = true;
+        } else {
+            try {
+                temp = createCanvasFromStream(stream);
+                width = (int) getCanvasWidth(temp);
+                height = (int) getCanvasHeight(temp);
 
-			canvas = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-			createGraphics();
+                canvas = createCanvas(width, height);
+                createGraphics();
 
-			gc.drawImage2(temp, 0, 0);
-		}
-		catch(Exception e)
-		{
-			System.out.println("Couldn't Load Image Stream");
-			isNull = true;
-		}
+                gc.drawImage2(temp, 0, 0);
+            } catch (Exception e) {
+                System.out.println("Couldn't Load Image Stream " + name);
+                e.printStackTrace();
+                isNull = true;
+            }
+        }
+        platformImage = this;
+    }
 
-		platformImage = this;
-	}
+    public PlatformImage(InputStream stream) {
+        // Create Image from InputStream
+        // System.out.println("Image From Stream");
+        long temp;
+        try {
+            temp = createCanvasFromStream(stream);
+            width = (int) getCanvasWidth(temp);
+            height = (int) getCanvasHeight(temp);
 
-	public PlatformImage(Image source)
-	{
-		// Create Image from Image
-		width = source.platformImage.width;
-		height = source.platformImage.height;
+            canvas = createCanvas(width, height);
+            createGraphics();
 
-		canvas = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-		createGraphics();
+            gc.drawImage2(temp, 0, 0);
+        } catch (Exception e) {
+            System.out.println("Couldn't Load Image Stream");
+            isNull = true;
+        }
 
-		gc.drawImage2(source.platformImage.getCanvas(), 0, 0);
+        platformImage = this;
+    }
 
-		platformImage = this;
-	}
+    public PlatformImage(Image source) {
+        // Create Image from Image
+        width = source.platformImage.width;
+        height = source.platformImage.height;
 
-	public PlatformImage(byte[] imageData, int imageOffset, int imageLength)
-	{
-		// Create Image from Byte Array Range (Data is PNG, JPG, etc.)
-		try
-		{
-			InputStream stream = new ByteArrayInputStream(imageData, imageOffset, imageLength);
+        canvas = createCanvas(width, height);
+        createGraphics();
 
-			BufferedImage temp;
+        gc.drawImage2(source.platformImage.getCanvas(), 0, 0);
 
-			temp = ImageIO.read(stream);
-			width = (int)temp.getWidth();
-			height = (int)temp.getHeight();
+        platformImage = this;
+    }
 
-			canvas = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-			createGraphics();
+    public PlatformImage(byte[] imageData, int imageOffset, int imageLength) {
+        // Create Image from Byte Array Range (Data is PNG, JPG, etc.)
+        try {
+            InputStream stream = new ByteArrayInputStream(imageData, imageOffset, imageLength);
 
-			gc.drawImage2(temp, 0, 0);
-		}
-		catch(Exception e)
-		{
-			System.out.println("Couldn't Load Image Data From Byte Array");
-			canvas = new BufferedImage(Mobile.getPlatform().lcdWidth, Mobile.getPlatform().lcdHeight, BufferedImage.TYPE_INT_ARGB);
-			createGraphics();
-			//System.out.println(e.getMessage());
-			//e.printStackTrace();
-			isNull = true;
-		}
+            long temp;
 
-		platformImage = this;
-	}
+            temp = createCanvasFromStream(stream);
+            width = (int) getCanvasWidth(temp);
+            height = (int) getCanvasHeight(temp);
 
-	public PlatformImage(int[] rgb, int Width, int Height, boolean processAlpha)
-	{
-		// createRGBImage (Data is ARGB pixel data)
-		width = Width;
-		height = Height;
+            canvas = createCanvas(width, height);
+            createGraphics();
 
-		if(width < 1) { width = 1; }
-		if(height < 1) { height = 1; }
+            gc.drawImage2(temp, 0, 0);
+        } catch (Exception e) {
+            System.out.println("Couldn't Load Image Data From Byte Array");
+            canvas = createCanvas(Mobile.getPlatform().lcdWidth, Mobile.getPlatform().lcdHeight);
+            createGraphics();
+            //System.out.println(e.getMessage());
+            //e.printStackTrace();
+            isNull = true;
+        }
 
-		canvas = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-		createGraphics();
+        platformImage = this;
+    }
 
-		gc.drawRGB(rgb, 0, width, 0, 0, width, height, true);
+    public PlatformImage(int[] rgb, int Width, int Height, boolean processAlpha) {
+        // createRGBImage (Data is ARGB pixel data)
+        width = Width;
+        height = Height;
 
-		platformImage = this;
-	}
+        if (width < 1) {
+            width = 1;
+        }
+        if (height < 1) {
+            height = 1;
+        }
 
-	public PlatformImage(Image image, int x, int y, int Width, int Height, int transform)
-	{
-		// Create Image From Sub-Image, Transformed //
-		BufferedImage sub = image.platformImage.canvas.getSubimage(x, y, Width, Height);
+        canvas = createCanvas(width, height);
+        createGraphics();
 
-		canvas = transformImage(sub, transform);
-		createGraphics();
+        gc.drawRGB(rgb, 0, width, 0, 0, width, height, true);
 
-		width = (int)canvas.getWidth();
-		height = (int)canvas.getHeight();
+        platformImage = this;
+    }
 
-		platformImage = this;
-	}
+    public PlatformImage(Image image, int x, int y, int Width, int Height, int transform) {
+        // Create Image From Sub-Image, Transformed //
+        long sub = getSubimage(image.platformImage.canvas, x, y, Width, Height);
 
-	public void getRGB(int[] rgbData, int offset, int scanlength, int x, int y, int width, int height)
-	{
-		canvas.getRGB(x, y, width, height, rgbData, offset, scanlength);
-	}
+        canvas = transformImage(sub, transform);
+        createGraphics();
 
-	public int getARGB(int x, int y)
-	{
-		return canvas.getRGB(x, y);
-	}
+        width = (int) getCanvasWidth(canvas);
+        height = (int) getCanvasHeight(canvas);
 
-	public int getPixel(int x, int y)
-	{
-		int[] rgbData = { 0 };
-		canvas.getRGB(x, y, 1, 1, rgbData, 0, 1);
-		return rgbData[0];
-	}
+        platformImage = this;
+    }
 
-	public void setPixel(int x, int y, int color)
-	{
-		int[] rgbData = { color };
-		gc.drawRGB(rgbData, 0, 1, x, y, 1, 1, false);
-	}
+    public void getRGB(int[] rgbData, int offset, int scanlength, int x, int y, int width, int height) { }
 
-	public static BufferedImage transformImage(BufferedImage image, int transform)
-	{
-		int width = (int)image.getWidth();
-		int height = (int)image.getHeight();
-		int out_width = width;
-		int out_height = height;
+    public int getARGB(int x, int y) { return 0; }
 
-		AffineTransform af = new AffineTransform();
+    public int getPixel(int x, int y) { return 0; }
 
-		switch (transform) {
-			case Sprite.TRANS_NONE:
-				break;
+    public void setPixel(int x, int y, int color) { }
 
-			case Sprite.TRANS_ROT90: 
-				af.translate(height, 0);
-				af.rotate(Math.PI / 2);
-				out_width = height;
-				out_height = width;
-				break;
-
-			case Sprite.TRANS_ROT180: 
-				af.translate(width, height);
-				af.rotate(Math.PI);
-				break;
-			
-			case Sprite.TRANS_ROT270:
-				af.translate(0, width);
-				af.rotate(Math.PI * 3 / 2);
-				out_width = height;
-				out_height = width;
-				break;
-
-			case Sprite.TRANS_MIRROR: 
-				af.translate(width, 0);
-				af.scale(-1, 1);
-				break;
-
-			case Sprite.TRANS_MIRROR_ROT90: 
-				af.translate(height, 0);
-				af.rotate(Math.PI / 2);
-				af.translate(width, 0);
-				af.scale(-1, 1);
-				out_width = height;
-				out_height = width;
-				break;
-
-			case Sprite.TRANS_MIRROR_ROT180: 
-				af.translate(width, 0);
-				af.scale(-1, 1);
-				af.translate(width, height);
-				af.rotate(Math.PI);
-				break;
-
-			case Sprite.TRANS_MIRROR_ROT270: 
-				af.translate(0, width);
-				af.rotate(Math.PI * 3 / 2);
-				af.translate(width, 0);
-				af.scale(-1, 1);
-				out_width = height;
-				out_height = width;
-				break;
-		}
-
-		BufferedImage transimage = new BufferedImage(out_width, out_height, BufferedImage.TYPE_INT_ARGB);
-		Graphics2D gc = transimage.createGraphics();
-		gc.drawImage(image, af, null);
-
-		return transimage;
-	}
+    public static long transformImage(long image, int transform) { return 0; }
 }

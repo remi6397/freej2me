@@ -16,15 +16,13 @@
 */
 package javax.microedition.rms;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.Path;
+import java.io.*;
 import java.util.Vector;
 import java.util.Arrays;
 
 import org.recompile.mobile.Mobile;
+
+import static pl.nelz.mini.cocoatouch.Foundation.*;
 
 public class RecordStore
 {
@@ -70,12 +68,12 @@ public class RecordStore
 
 		appname = Mobile.getPlatform().loader.suitename;
 
-		rmsPath = "rms/"+appname;
-		rmsFile = "rms/"+appname+"/"+recordStoreName;
+		rmsPath = NSHomeDirectory() + "/rms/" + appname;
+		rmsFile = rmsPath + "/" + recordStoreName;
 
 		try
 		{
-			Files.createDirectories(Paths.get(rmsPath));
+			new File(rmsPath).mkdirs();
 		}
 		catch (Exception e)
 		{
@@ -111,8 +109,30 @@ public class RecordStore
 
 		try // Read Records
 		{
-			Path path = Paths.get(file.getAbsolutePath());
-			byte[] data = Files.readAllBytes(path);
+			ByteArrayOutputStream ous = null;
+			InputStream ios = null;
+			try {
+				byte[] buffer = new byte[4096];
+				ous = new ByteArrayOutputStream();
+				ios = new FileInputStream(file);
+				int read = 0;
+				while ((read = ios.read(buffer)) != -1) {
+					ous.write(buffer, 0, read);
+				}
+			} finally {
+				try {
+					if (ous != null)
+						ous.close();
+				} catch (IOException e) {
+				}
+
+				try {
+					if (ios != null)
+						ios.close();
+				} catch (IOException e) {
+				}
+			}
+			byte[] data = ous.toByteArray();
 
 			if(data.length>=4)
 			{

@@ -80,8 +80,7 @@ public class MobilePlatform
 		gc = lcd.getGraphics();
 	}
 
-	public BufferedImage getLCD()
-	{
+	public long getLCD() {
 		return lcd.getCanvas();
 	}
 
@@ -151,6 +150,7 @@ public class MobilePlatform
 		{
 			URL jar = new URL(jarurl);
 			loader = new MIDletLoader(new URL[]{jar});
+			System.out.println("Load jar");
 			return true;
 		}
 		catch (Exception e)

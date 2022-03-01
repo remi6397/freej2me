@@ -4,11 +4,11 @@
 
 <!--
 ****************************************************
-*    AWT, Libretro, SDL
+*    iOS
 ****************************************************
 -->
 
-	<echo message="FreeJ2ME - AWT | Libretro | SDL" />
+	<echo message="FreeJ2ME - iOS" />
 	<mkdir dir="build/classes"/>
 	<javac
 		srcdir="src"
@@ -28,41 +28,15 @@
 ****************************************************
 -->
 
-	<echo message="Building JAR - AWT" />
+	<echo message="Building JAR - iOS" />
 	<jar
 		destfile="build/freej2me.jar"
 		basedir="build/classes">
 		<fileset dir="resources" />
 		<metainf dir="META-INF" />
 		<manifest>
-			<!-- AWT Version -->
-			<attribute name="Main-Class" value="org.recompile.freej2me.FreeJ2ME"/>
-			<attribute name="Implementation-Title" value="FreeJ2ME"/>
-		</manifest>
-	</jar>
-
-	<echo message="Building JAR - Libretro" />
-	<jar
-		destfile="build/freej2me-lr.jar"
-		basedir="build/classes">
-		<fileset dir="resources" />
-		<metainf dir="META-INF" />
-		<manifest>
-			<!-- Libretro Version -->
-			<attribute name="Main-Class" value="org.recompile.freej2me.Libretro"/>
-			<attribute name="Implementation-Title" value="FreeJ2ME"/>
-		</manifest>
-	</jar>
-
-	<echo message="Building JAR - SDL" />
-	<jar
-		destfile="build/freej2me-sdl.jar"
-		basedir="build/classes">
-		<fileset dir="resources" />
-		<metainf dir="META-INF" />
-		<manifest>
-			<!-- Libretro Version -->
-			<attribute name="Main-Class" value="org.recompile.freej2me.Anbu"/>
+			<!-- iOS Version -->
+			<attribute name="Main-Class" value="pl.nelz.choklad.Choklad"/>
 			<attribute name="Implementation-Title" value="FreeJ2ME"/>
 		</manifest>
 	</jar>
